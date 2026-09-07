@@ -1,0 +1,182 @@
+[
+  {
+    "id": 1,
+    "title": "The Shawshank Redemption",
+    "year": 1994,
+    "genres": ["Drama", "Crime"],
+    "keywords": ["prison", "friendship", "hope", "redemption", "escape"],
+    "overview": "Two imprisoned men bond over years, finding solace and eventual redemption through acts of common decency.",
+    "cast": ["Tim Robbins", "Morgan Freeman", "Bob Gunton"],
+    "director": "Frank Darabont"
+  },
+  {
+    "id": 2,
+    "title": "Inception",
+    "year": 2010,
+    "genres": ["Action", "Sci-Fi", "Thriller"],
+    "keywords": ["dream", "heist", "subconscious", "mind", "architecture"],
+    "overview": "A thief who steals corporate secrets through dream-sharing technology is given the inverse task of planting an idea.",
+    "cast": ["Leonardo DiCaprio", "Joseph Gordon-Levitt", "Elliot Page"],
+    "director": "Christopher Nolan"
+  },
+  {
+    "id": 3,
+    "title": "Spirited Away",
+    "year": 2001,
+    "genres": ["Animation", "Adventure", "Family", "Fantasy"],
+    "keywords": ["spirits", "bathhouse", "coming of age", "magic", "japan"],
+    "overview": "A young girl enters a world of spirits and must find her way home while her parents are turned into pigs.",
+    "cast": ["Rumi Hiiragi", "Miyu Irino", "Mari Natsuki"],
+    "director": "Hayao Miyazaki"
+  },
+  {
+    "id": 4,
+    "title": "The Dark Knight",
+    "year": 2008,
+    "genres": ["Action", "Crime", "Drama"],
+    "keywords": ["batman", "joker", "gotham", "vigilante", "chaos"],
+    "overview": "Batman faces the Joker, a criminal mastermind who plunges Gotham into chaos.",
+    "cast": ["Christian Bale", "Heath Ledger", "Aaron Eckhart"],
+    "director": "Christopher Nolan"
+  },
+  {
+    "id": 5,
+    "title": "Pride & Prejudice",
+    "year": 2005,
+    "genres": ["Drama", "Romance"],
+    "keywords": ["period", "marriage", "class", "england", "love"],
+    "overview": "Sparks fly when spirited Elizabeth Bennet meets proud Mr. Darcy.",
+    "cast": ["Keira Knightley", "Matthew Macfadyen", "Donald Sutherland"],
+    "director": "Joe Wright"
+  },
+  {
+    "id": 6,
+    "title": "Interstellar",
+    "year": 2014,
+    "genres": ["Adventure", "Drama", "Sci-Fi"],
+    "keywords": ["space", "time", "father daughter", "wormhole", "survival"],
+    "overview": "A team of explorers travel through a wormhole in space in an attempt to ensure humanity's survival.",
+    "cast": ["Matthew McConaughey", "Anne Hathaway", "Jessica Chastain"],
+    "director": "Christopher Nolan"
+  },
+  {
+    "id": 7,
+    "title": "The Prestige",
+    "year": 2006,
+    "genres": ["Drama", "Mystery", "Sci-Fi"],
+    "keywords": ["magic", "rivalry", "illusion", "obsession", "secret"],
+    "overview": "Two rival magicians become obsessed with creating the ultimate stage illusion.",
+    "cast": ["Hugh Jackman", "Christian Bale", "Scarlett Johansson"],
+    "director": "Christopher Nolan"
+  },
+  {
+    "id": 8,
+    "title": "Batman Begins",
+    "year": 2005,
+    "genres": ["Action", "Crime", "Drama"],
+    "keywords": ["batman", "gotham", "origin", "fear", "vigilante"],
+    "overview": "After training with a mysterious league, Bruce Wayne becomes Batman to fight crime in Gotham.",
+    "cast": ["Christian Bale", "Michael Caine", "Liam Neeson"],
+    "director": "Christopher Nolan"
+  },
+  {
+    "id": 9,
+    "title": "The Dark Knight Rises",
+    "year": 2012,
+    "genres": ["Action", "Crime", "Drama"],
+    "keywords": ["batman", "bane", "gotham", "revolution", "vigilante"],
+    "overview": "Eight years after the Joker's reign, Batman must return to protect Gotham from Bane.",
+    "cast": ["Christian Bale", "Tom Hardy", "Anne Hathaway"],
+    "director": "Christopher Nolan"
+  },
+  {
+    "id": 10,
+    "title": "The Green Mile",
+    "year": 1999,
+    "genres": ["Crime", "Drama", "Fantasy"],
+    "keywords": ["prison", "death row", "miracle", "kindness", "injustice"],
+    "overview": "A death-row prison guard discovers a condemned inmate with a mysterious gift.",
+    "cast": ["Tom Hanks", "Michael Clarke Duncan", "David Morse"],
+    "director": "Frank Darabont"
+  },
+  {
+    "id": 11,
+    "title": "Howl's Moving Castle",
+    "year": 2004,
+    "genres": ["Animation", "Adventure", "Family", "Fantasy"],
+    "keywords": ["magic", "war", "curse", "castle", "spirits"],
+    "overview": "A young woman cursed with old age seeks help from a wizard who lives in a walking castle.",
+    "cast": ["Chieko Baisho", "Takuya Kimura", "Akihiro Miwa"],
+    "director": "Hayao Miyazaki"
+  },
+  {
+    "id": 12,
+    "title": "My Neighbor Totoro",
+    "year": 1988,
+    "genres": ["Animation", "Family", "Fantasy"],
+    "keywords": ["forest", "spirits", "sisters", "childhood", "japan"],
+    "overview": "Two sisters find forest spirits, including a giant friendly creature named Totoro, after moving to the countryside.",
+    "cast": ["Noriko Hidaka", "Chika Sakamoto", "Hitoshi Takagi"],
+    "director": "Hayao Miyazaki"
+  },
+  {
+    "id": 13,
+    "title": "The Matrix",
+    "year": 1999,
+    "genres": ["Action", "Sci-Fi"],
+    "keywords": ["simulation", "chosen one", "reality", "hackers", "dystopia"],
+    "overview": "A computer hacker learns about the true nature of reality and his role in the war against its controllers.",
+    "cast": ["Keanu Reeves", "Laurence Fishburne", "Carrie-Anne Moss"],
+    "director": "Lana Wachowski"
+  },
+  {
+    "id": 14,
+    "title": "Arrival",
+    "year": 2016,
+    "genres": ["Drama", "Sci-Fi", "Mystery"],
+    "keywords": ["aliens", "language", "time", "first contact", "linguistics"],
+    "overview": "A linguist is recruited to communicate with aliens who have arrived on Earth.",
+    "cast": ["Amy Adams", "Jeremy Renner", "Forest Whitaker"],
+    "director": "Denis Villeneuve"
+  },
+  {
+    "id": 15,
+    "title": "Dunkirk",
+    "year": 2017,
+    "genres": ["Action", "Drama", "War"],
+    "keywords": ["world war", "evacuation", "survival", "beach", "soldiers"],
+    "overview": "Allied soldiers are surrounded and evacuated during a World War II battle on the beaches of Dunkirk.",
+    "cast": ["Fionn Whitehead", "Tom Hardy", "Harry Styles"],
+    "director": "Christopher Nolan"
+  },
+  {
+    "id": 16,
+    "title": "Sense and Sensibility",
+    "year": 1995,
+    "genres": ["Drama", "Romance"],
+    "keywords": ["period", "sisters", "marriage", "england", "love"],
+    "overview": "After their father's death, the Dashwood sisters face reduced circumstances and complicated romances.",
+    "cast": ["Emma Thompson", "Kate Winslet", "Hugh Grant"],
+    "director": "Ang Lee"
+  },
+  {
+    "id": 17,
+    "title": "Blade Runner 2049",
+    "year": 2017,
+    "genres": ["Sci-Fi", "Drama", "Mystery"],
+    "keywords": ["android", "dystopia", "identity", "future", "memory"],
+    "overview": "A young blade runner uncovers a secret that could plunge society into chaos and goes in search of Rick Deckard.",
+    "cast": ["Ryan Gosling", "Harrison Ford", "Ana de Armas"],
+    "director": "Denis Villeneuve"
+  },
+  {
+    "id": 18,
+    "title": "Princess Mononoke",
+    "year": 1997,
+    "genres": ["Animation", "Adventure", "Fantasy"],
+    "keywords": ["forest", "spirits", "war", "nature", "curse"],
+    "overview": "A young warrior becomes involved in a struggle between forest gods and humans exploiting the land.",
+    "cast": ["Yoji Matsuda", "Yuriko Ishida", "Yuko Tanaka"],
+    "director": "Hayao Miyazaki"
+  }
+]
