@@ -1,4 +1,4 @@
-const API_BASE = import.meta.env.VITE_API_URL || "https://movie-recommender-fastapi.onrender.com";
+const API_BASE = import.meta.env.VITE_API_URL || "https://movierec-fastapi-2026.onrender.com";
 
 async function request(path) {
   const response = await fetch(`${API_BASE}${path}`);

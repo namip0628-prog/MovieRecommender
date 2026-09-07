@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: movie-recommender-fastapi
+    name: movierec-fastapi-2026
     runtime: python
     rootDir: backend
     buildCommand: pip install -r requirements.txt
@@ -8,13 +8,13 @@ services:
     healthCheckPath: /health
     envVars:
       - key: FRONTEND_URL
-        value: https://movie-recommender-web.onrender.com
+        value: https://movierec-web-2026.onrender.com
 
   - type: static
-    name: movie-recommender-web
+    name: movierec-web-2026
     rootDir: frontend
     buildCommand: npm install && npm run build
     staticPublishPath: dist
     envVars:
       - key: VITE_API_URL
-        value: https://movie-recommender-fastapi.onrender.com
+        value: https://movierec-fastapi-2026.onrender.com
