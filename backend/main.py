@@ -33,6 +33,7 @@ allowed_origins = [
     "http://127.0.0.1:5173",
     "https://movierecommender-um4p.onrender.com",
     "https://movie-recommender-web.onrender.com",
+    "https://movie-recommender-frontend-og9a.onrender.com",
 ]
 if frontend_url:
     allowed_origins.extend(origin.strip() for origin in frontend_url.split(",") if origin.strip())
