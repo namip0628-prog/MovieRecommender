@@ -97,6 +97,28 @@ function MovieGrid({ movies, onSelect, saved, onToggleSave }) {
   return movies.length ? <div className="movie-grid">{movies.map((movie) => <MovieCard key={movie.id} movie={movie} onSelect={onSelect} isSaved={saved.some((item) => item.id === movie.id)} onToggleSave={onToggleSave} />)}</div> : <div className="empty-state">No films here yet. Try another genre or search.</div>;
 }
 
+function AuthModal({ mode, onClose, onModeChange, onSubmit, error }) {
+  const [showPassword, setShowPassword] = useState(false);
+  const isSignIn = mode === "signin";
+
+  return <div className="auth-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}>
+    <section className="auth-modal" role="dialog" aria-modal="true" aria-labelledby="auth-title">
+      <button className="auth-close" type="button" onClick={onClose} aria-label="Close account dialog">×</button>
+      <p className="eyebrow">YOUR PRIVATE SCREENING ROOM</p>
+      <h2 id="auth-title">{isSignIn ? "Welcome back." : "Make a little room."}</h2>
+      <p className="auth-intro">{isSignIn ? "Sign in to keep your watchlist close." : "Create an account to save films for later."}</p>
+      <form className="auth-form" onSubmit={onSubmit}>
+        {!isSignIn && <label>Display name<input name="name" type="text" autoComplete="name" placeholder="Your name" required /></label>}
+        <label>Email address<input name="email" type="email" autoComplete="email" placeholder="you@example.com" required /></label>
+        <label>Password<div className="password-field"><input name="password" type={showPassword ? "text" : "password"} autoComplete={isSignIn ? "current-password" : "new-password"} placeholder="At least 6 characters" minLength="6" required /><button type="button" onClick={() => setShowPassword((visible) => !visible)}>{showPassword ? "Hide" : "Show"}</button></div></label>
+        {error && <p className="auth-error" role="alert">{error}</p>}
+        <button className="primary-button auth-submit" type="submit">{isSignIn ? "Sign in" : "Create account"}<span>→</span></button>
+      </form>
+      <p className="auth-switch">{isSignIn ? "New to MUBI?" : "Already have an account?"} <button type="button" onClick={() => onModeChange(isSignIn ? "signup" : "signin")}>{isSignIn ? "Create an account" : "Sign in"}</button></p>
+    </section>
+  </div>;
+}
+
 function App() {
   const [movies, setMovies] = useState([]);
   const [results, setResults] = useState([]);
@@ -108,6 +130,9 @@ function App() {
   const [activeGenre, setActiveGenre] = useState("All");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [authMode, setAuthMode] = useState(null);
+  const [account, setAccount] = useState(() => JSON.parse(localStorage.getItem("movie-session") || "null"));
+  const [authError, setAuthError] = useState("");
 
   useEffect(() => { fetchMovies().then(setMovies).catch((reason) => setError(reason.message)).finally(() => setLoading(false)); }, []);
   useEffect(() => { localStorage.setItem("movie-watchlist", JSON.stringify(saved)); }, [saved]);
@@ -135,12 +160,36 @@ function App() {
     navigate({ view: "detail", id: movie.id });
   }
 
+  function openAuth(mode) { setAuthError(""); setAuthMode(mode); }
+  function handleAuthSubmit(event) {
+    event.preventDefault();
+    const form = new FormData(event.currentTarget);
+    const email = form.get("email").toLowerCase().trim();
+    const password = form.get("password");
+    const accounts = JSON.parse(localStorage.getItem("movie-accounts") || "[]");
+    if (authMode === "signup") {
+      if (accounts.some((user) => user.email === email)) return setAuthError("An account with that email already exists.");
+      const user = { name: form.get("name").trim(), email, password };
+      localStorage.setItem("movie-accounts", JSON.stringify([...accounts, user]));
+      localStorage.setItem("movie-session", JSON.stringify({ name: user.name, email: user.email }));
+      setAccount({ name: user.name, email: user.email });
+    } else {
+      const user = accounts.find((item) => item.email === email && item.password === password);
+      if (!user) return setAuthError("That email and password combination is not recognised.");
+      localStorage.setItem("movie-session", JSON.stringify({ name: user.name, email: user.email }));
+      setAccount({ name: user.name, email: user.email });
+    }
+    setAuthMode(null);
+  }
+  function signOut() { localStorage.removeItem("movie-session"); setAccount(null); }
+
   const featured = movies.find((movie) => movie.title === "Inception") || movies[0];
   const displayedMovies = route.view === "watchlist" ? saved : filteredMovies;
   return <div className="app-shell">
     <header className="topbar"><button className="brand" type="button" onClick={() => navigate({ view: "home" })}><span className="brand-mark">M</span> MUBI<span className="brand-dot">.</span></button>
       <nav><button className={route.view === "home" ? "active" : ""} onClick={() => navigate({ view: "home" })}>Discover</button><button className={route.view === "watchlist" ? "active" : ""} onClick={() => navigate({ view: "watchlist" })}>Watchlist <span className="count">{saved.length}</span></button></nav>
       <form className="search-box" onSubmit={handleSearch}><span>⌕</span><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search films, directors..." aria-label="Search films" /></form>
+      {account ? <div className="account-menu"><span className="account-name">{account.name}</span><button className="account-action" type="button" onClick={signOut}>Sign out</button></div> : <button className="signin-button" type="button" onClick={() => openAuth("signin")}>Sign in</button>}
     </header>
     {error && <div className="error-banner">{error} <button onClick={() => setError("")}>Dismiss</button></div>}
     {loading && !movies.length ? <div className="loading">Loading your cinema...</div> : route.view === "detail" && detail ? <main className="detail-view">
@@ -149,6 +198,7 @@ function App() {
       <section className="catalog-section"><div className="section-top"><SectionHeading label={route.view === "watchlist" ? "Saved for later" : route.view === "search" ? `Results for “${query}”` : "The collection"} title={route.view === "watchlist" ? "Your watchlist" : route.view === "search" ? `${filteredMovies.length} films found` : "Find your next favorite"} /><div className="catalog-note">{movies.length} films <span>·</span> updated daily</div></div>{route.view !== "watchlist" && <div className="genre-row">{genres.map((genre) => <button key={genre} className={genre === activeGenre ? "selected" : ""} onClick={() => setActiveGenre(genre)}>{genre}</button>)}</div>}<MovieGrid movies={displayedMovies} onSelect={(id) => navigate({ view: "detail", id })} saved={saved} onToggleSave={toggleSaved} /></section>
     </main>}
     <footer><span>© 2026 MUBI.</span><span>A quiet place for great films.</span><span>FASTAPI / REACT</span></footer>
+    {authMode && <AuthModal mode={authMode} onClose={() => setAuthMode(null)} onModeChange={openAuth} onSubmit={handleAuthSubmit} error={authError} />}
   </div>;
 }
 
