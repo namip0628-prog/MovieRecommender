@@ -77,6 +77,8 @@ Open [http://localhost:5173](http://localhost:5173). You should see the sample m
 
 If the frontend says it cannot reach the backend, make sure Uvicorn is still running on port 8000.
 
+For a deployed frontend, set the `VITE_API_URL` environment variable to the public URL of the deployed FastAPI backend before building, for example `https://your-api-service.onrender.com`.
+
 ## Try the recommender from the command line
 
 ```powershell
