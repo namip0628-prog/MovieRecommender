@@ -193,9 +193,20 @@ function App() {
     const email = form.get("email").toLowerCase().trim();
     const password = form.get("password");
     try {
-      const payload = authMode === "signup"
-        ? await signUp(form.get("name").trim(), email, password)
-        : await signIn(email, password);
+      let payload;
+      if (authMode === "signup") {
+        payload = await signUp(form.get("name").trim(), email, password);
+      } else {
+        try {
+          payload = await signIn(email, password);
+        } catch (reason) {
+          const legacyAccounts = JSON.parse(localStorage.getItem("movie-accounts") || "[]");
+          const legacyUser = legacyAccounts.find((user) => user.email === email && user.password === password);
+          if (!legacyUser) throw reason;
+          payload = await signUp(legacyUser.name, legacyUser.email, legacyUser.password);
+          localStorage.removeItem("movie-accounts");
+        }
+      }
       localStorage.setItem("movie-session", JSON.stringify(payload.user));
       setAccount(payload.user);
       setAuthMode(null);
