@@ -8,4 +8,7 @@ export default defineConfig({
   server: {
     port: 5173,
   },
+  preview: {
+    allowedHosts: ["movierecommender-um4p.onrender.com"],
+  },
 });
