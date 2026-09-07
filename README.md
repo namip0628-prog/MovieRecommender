@@ -57,7 +57,7 @@ cd C:\Users\rakes\movie-recommender\backend
 python -m venv .venv
 .\.venv\Scripts\activate
 pip install -r requirements.txt
-uvicorn main:app --reload
+uvicorn main:app --reload --host 0.0.0.0
 ```
 
 - API: [http://localhost:8000](http://localhost:8000)
@@ -73,11 +73,22 @@ npm install
 npm run dev
 ```
 
-Open [http://localhost:5173](http://localhost:5173). You should see the sample movies from the API.
+Open [http://localhost:5173](http://localhost:5173). You should see the sample movies from the API. To test on a phone connected to the same Wi-Fi, find this computer's local IP with `ipconfig` and open `http://YOUR-COMPUTER-IP:5173` on the phone. Keep the API server running with the `--host 0.0.0.0` option above.
 
 If the frontend says it cannot reach the backend, make sure Uvicorn is still running on port 8000.
 
 For a deployed frontend, set the `VITE_API_URL` environment variable to the public URL of the deployed FastAPI backend before building, for example `https://your-api-service.onrender.com`.
+
+## Deploy permanently on Render
+
+The repository includes `render.yaml`, which defines two independent services:
+
+- `movie-recommender-api`: FastAPI web service using `backend/requirements.txt`
+- `movie-recommender-web`: React static site built from `frontend/`
+
+In Render, choose **New +** -> **Blueprint**, connect this GitHub repository, and apply the blueprint. Render will build and run both services after each push, so they do not depend on VS Code or a terminal running on this computer. The API uses Render's `$PORT` and `0.0.0.0`, which are required for a web service.
+
+The free Render plan may sleep an inactive service. Its first request after inactivity can take several seconds, but it should wake automatically. Do not use `npm run dev` or `uvicorn --reload` as the production service commands.
 
 ## Try the recommender from the command line
 

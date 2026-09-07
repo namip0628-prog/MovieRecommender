@@ -13,6 +13,7 @@ Run from the backend folder:
   uvicorn main:app --reload
 """
 
+import os
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException, Query
@@ -26,13 +27,20 @@ app = FastAPI(
     version="0.2.0",
 )
 
+frontend_url = os.getenv("FRONTEND_URL", "")
+allowed_origins = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    "https://movierecommender-um4p.onrender.com",
+    "https://movie-recommender-web.onrender.com",
+]
+if frontend_url:
+    allowed_origins.extend(origin.strip() for origin in frontend_url.split(",") if origin.strip())
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:5173",
-        "http://127.0.0.1:5173",
-        "https://movierecommender-um4p.onrender.com",
-    ],
+    allow_origins=allowed_origins,
+    allow_origin_regex=r"https?://(?:10\.[0-9.]+|192\.168\.[0-9.]+|172\.(?:1[6-9]|2[0-9]|3[0-1])\.[0-9.]+):5173",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
