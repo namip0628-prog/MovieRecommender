@@ -6,9 +6,15 @@ services:
     buildCommand: pip install -r requirements.txt
     startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
     healthCheckPath: /health
+    disk:
+      name: movierec-accounts
+      mountPath: /var/data
+      sizeGB: 1
     envVars:
       - key: FRONTEND_URL
         value: https://movierec-web-2026.onrender.com
+      - key: AUTH_DB
+        value: /var/data/accounts.db
 
   - type: static
     name: movierec-web-2026

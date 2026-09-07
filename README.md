@@ -7,7 +7,7 @@ A beginner-friendly full-stack starter:
 
 Recommendations are **content-based**: each movie is turned into one text blob (overview, genres, keywords, cast, director), then TF-IDF + cosine similarity ranks the 10 closest titles.
 
-Accounts are stored by the FastAPI service in `backend/accounts.db`, so the same email and password can be used on multiple devices. For a production deployment, attach persistent storage to the backend (or set `AUTH_DB` to a persistent database path), otherwise a redeploy can remove local SQLite data.
+Accounts are stored by the FastAPI service in SQLite, so the same email and password can be used on multiple devices. The Render blueprint mounts a persistent disk at `/var/data` and sets `AUTH_DB` to `/var/data/accounts.db`; use an equivalent persistent database path when deploying elsewhere.
 
 ## Project layout
 
