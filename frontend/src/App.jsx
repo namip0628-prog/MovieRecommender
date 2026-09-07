@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { fetchMovie, fetchMovies, fetchRecommendations, searchMovies } from "./api.js";
+import { fetchMovie, fetchMovies, fetchRecommendations, searchMovies, signIn, signUp } from "./api.js";
 import "./App.css";
 
 const genreThemes = {
@@ -119,6 +119,25 @@ function AuthModal({ mode, onClose, onModeChange, onSubmit, error }) {
   </div>;
 }
 
+function AccountPanel({ account, savedCount, onClose, onWatchlist, onSignOut }) {
+  return <div className="popover account-panel" role="dialog" aria-label="Account menu">
+    <div className="panel-heading"><div><p className="eyebrow">YOUR ACCOUNT</p><strong>{account.name}</strong></div><button className="panel-close" type="button" onClick={onClose} aria-label="Close account menu">×</button></div>
+    <p className="panel-email">{account.email}</p>
+    <div className="panel-stat"><span>Saved films</span><strong>{savedCount}</strong></div>
+    <button className="panel-link" type="button" onClick={onWatchlist}>Open watchlist <span>→</span></button>
+    <button className="panel-signout" type="button" onClick={onSignOut}>Sign out</button>
+  </div>;
+}
+
+function SettingsPanel({ settings, onChange, onClose }) {
+  return <div className="popover settings-panel" role="dialog" aria-label="Site settings">
+    <div className="panel-heading"><div><p className="eyebrow">THE SCREENING ROOM</p><strong>Settings</strong></div><button className="panel-close" type="button" onClick={onClose} aria-label="Close settings">×</button></div>
+    <label className="setting-row"><span><strong>Appearance</strong><small>Choose the room's tone</small></span><select value={settings.theme} onChange={(event) => onChange({ theme: event.target.value })}><option value="dim">Dim</option><option value="light">Light</option></select></label>
+    <label className="setting-row"><span><strong>Reduced motion</strong><small>Keep transitions quiet</small></span><input type="checkbox" checked={settings.reducedMotion} onChange={(event) => onChange({ reducedMotion: event.target.checked })} /></label>
+    <p className="settings-note">Preferences are saved on this device.</p>
+  </div>;
+}
+
 function App() {
   const [movies, setMovies] = useState([]);
   const [results, setResults] = useState([]);
@@ -133,9 +152,16 @@ function App() {
   const [authMode, setAuthMode] = useState(null);
   const [account, setAccount] = useState(() => JSON.parse(localStorage.getItem("movie-session") || "null"));
   const [authError, setAuthError] = useState("");
+  const [openPanel, setOpenPanel] = useState(null);
+  const [settings, setSettings] = useState(() => JSON.parse(localStorage.getItem("movie-settings") || '{"theme":"dim","reducedMotion":false}'));
 
   useEffect(() => { fetchMovies().then(setMovies).catch((reason) => setError(reason.message)).finally(() => setLoading(false)); }, []);
   useEffect(() => { localStorage.setItem("movie-watchlist", JSON.stringify(saved)); }, [saved]);
+  useEffect(() => {
+    localStorage.setItem("movie-settings", JSON.stringify(settings));
+    document.documentElement.dataset.theme = settings.theme;
+    document.documentElement.classList.toggle("reduced-motion", settings.reducedMotion);
+  }, [settings]);
   useEffect(() => {
     if (route.view !== "detail" || !route.id) return;
     setDetail(null); setRecommendations([]);
@@ -161,27 +187,24 @@ function App() {
   }
 
   function openAuth(mode) { setAuthError(""); setAuthMode(mode); }
-  function handleAuthSubmit(event) {
+  async function handleAuthSubmit(event) {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
     const email = form.get("email").toLowerCase().trim();
     const password = form.get("password");
-    const accounts = JSON.parse(localStorage.getItem("movie-accounts") || "[]");
-    if (authMode === "signup") {
-      if (accounts.some((user) => user.email === email)) return setAuthError("An account with that email already exists.");
-      const user = { name: form.get("name").trim(), email, password };
-      localStorage.setItem("movie-accounts", JSON.stringify([...accounts, user]));
-      localStorage.setItem("movie-session", JSON.stringify({ name: user.name, email: user.email }));
-      setAccount({ name: user.name, email: user.email });
-    } else {
-      const user = accounts.find((item) => item.email === email && item.password === password);
-      if (!user) return setAuthError("That email and password combination is not recognised.");
-      localStorage.setItem("movie-session", JSON.stringify({ name: user.name, email: user.email }));
-      setAccount({ name: user.name, email: user.email });
+    try {
+      const payload = authMode === "signup"
+        ? await signUp(form.get("name").trim(), email, password)
+        : await signIn(email, password);
+      localStorage.setItem("movie-session", JSON.stringify(payload.user));
+      setAccount(payload.user);
+      setAuthMode(null);
+    } catch (reason) {
+      setAuthError(reason.message);
     }
-    setAuthMode(null);
   }
-  function signOut() { localStorage.removeItem("movie-session"); setAccount(null); }
+  function signOut() { localStorage.removeItem("movie-session"); setAccount(null); setOpenPanel(null); }
+  function updateSettings(nextSettings) { setSettings((current) => ({ ...current, ...nextSettings })); }
 
   const featured = movies.find((movie) => movie.title === "Inception") || movies[0];
   const displayedMovies = route.view === "watchlist" ? saved : filteredMovies;
@@ -189,7 +212,12 @@ function App() {
     <header className="topbar"><button className="brand" type="button" onClick={() => navigate({ view: "home" })}><span className="brand-mark">M</span> MUBI<span className="brand-dot">.</span></button>
       <nav><button className={route.view === "home" ? "active" : ""} onClick={() => navigate({ view: "home" })}>Discover</button><button className={route.view === "watchlist" ? "active" : ""} onClick={() => navigate({ view: "watchlist" })}>Watchlist <span className="count">{saved.length}</span></button></nav>
       <form className="search-box" onSubmit={handleSearch}><span>⌕</span><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search films, directors..." aria-label="Search films" /></form>
-      {account ? <div className="account-menu"><span className="account-name">{account.name}</span><button className="account-action" type="button" onClick={signOut}>Sign out</button></div> : <button className="signin-button" type="button" onClick={() => openAuth("signin")}>Sign in</button>}
+      <div className="header-actions">
+        {account ? <button className={`header-icon-button ${openPanel === "account" ? "is-open" : ""}`} type="button" onClick={() => setOpenPanel((current) => current === "account" ? null : "account")} aria-label="Open account menu" aria-expanded={openPanel === "account"}><span className="avatar-mark">{account.name.charAt(0).toUpperCase()}</span><span className="header-button-label">Account</span></button> : <button className="signin-button" type="button" onClick={() => openAuth("signin")}>Sign in</button>}
+        <button className={`header-icon-button settings-button ${openPanel === "settings" ? "is-open" : ""}`} type="button" onClick={() => setOpenPanel((current) => current === "settings" ? null : "settings")} aria-label="Open settings" aria-expanded={openPanel === "settings"}><span className="gear-mark">⚙</span><span className="header-button-label">Settings</span></button>
+        {openPanel === "account" && account && <AccountPanel account={account} savedCount={saved.length} onClose={() => setOpenPanel(null)} onWatchlist={() => { navigate({ view: "watchlist" }); setOpenPanel(null); }} onSignOut={signOut} />}
+        {openPanel === "settings" && <SettingsPanel settings={settings} onChange={updateSettings} onClose={() => setOpenPanel(null)} />}
+      </div>
     </header>
     {error && <div className="error-banner">{error} <button onClick={() => setError("")}>Dismiss</button></div>}
     {loading && !movies.length ? <div className="loading">Loading your cinema...</div> : route.view === "detail" && detail ? <main className="detail-view">

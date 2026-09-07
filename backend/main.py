@@ -14,10 +14,15 @@ Run from the backend folder:
 """
 
 import os
+import hashlib
+import hmac
+import secrets
+import sqlite3
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel, Field
 
 from recommender import ContentRecommender
 
@@ -48,9 +53,85 @@ app.add_middleware(
 )
 
 DATA_FILE = Path(__file__).parent / "movies.json"
+AUTH_DB = Path(os.getenv("AUTH_DB", Path(__file__).parent / "accounts.db"))
+
+
+class SignUpRequest(BaseModel):
+    name: str = Field(min_length=1, max_length=80)
+    email: str = Field(min_length=3, max_length=254)
+    password: str = Field(min_length=6, max_length=128)
+
+
+class SignInRequest(BaseModel):
+    email: str = Field(min_length=3, max_length=254)
+    password: str = Field(min_length=1, max_length=128)
+
+
+def get_auth_connection() -> sqlite3.Connection:
+    connection = sqlite3.connect(AUTH_DB)
+    connection.row_factory = sqlite3.Row
+    connection.execute(
+        """
+        CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            email TEXT NOT NULL UNIQUE,
+            password_hash TEXT NOT NULL,
+            password_salt TEXT NOT NULL
+        )
+        """
+    )
+    return connection
+
+
+def normalise_email(email: str) -> str:
+    return email.strip().lower()
+
+
+def hash_password(password: str, salt: bytes) -> str:
+    return hashlib.pbkdf2_hmac("sha256", password.encode(), salt, 120_000).hex()
+
+
+def account_response(user: sqlite3.Row) -> dict[str, str]:
+    return {"name": user["name"], "email": user["email"]}
 
 # Fit TF-IDF + cosine similarity once. Every recommendation request reuses this.
 recommender = ContentRecommender(DATA_FILE)
+
+
+@app.post("/auth/signup", status_code=201)
+def sign_up(payload: SignUpRequest):
+    email = normalise_email(payload.email)
+    salt = secrets.token_bytes(16)
+    password_hash = hash_password(payload.password, salt)
+    connection = get_auth_connection()
+    try:
+        cursor = connection.execute(
+            "INSERT INTO users (name, email, password_hash, password_salt) VALUES (?, ?, ?, ?)",
+            (payload.name.strip(), email, password_hash, salt.hex()),
+        )
+        connection.commit()
+    except sqlite3.IntegrityError:
+        raise HTTPException(status_code=409, detail="An account with that email already exists.")
+    finally:
+        connection.close()
+    return {"user": {"name": payload.name.strip(), "email": email}}
+
+
+@app.post("/auth/signin")
+def sign_in(payload: SignInRequest):
+    connection = get_auth_connection()
+    user = connection.execute(
+        "SELECT name, email, password_hash, password_salt FROM users WHERE email = ?",
+        (normalise_email(payload.email),),
+    ).fetchone()
+    connection.close()
+    if not user:
+        raise HTTPException(status_code=401, detail="That email and password combination is not recognised.")
+    salt = bytes.fromhex(user["password_salt"])
+    if not hmac.compare_digest(hash_password(payload.password, salt), user["password_hash"]):
+        raise HTTPException(status_code=401, detail="That email and password combination is not recognised.")
+    return {"user": account_response(user)}
 
 
 @app.get("/")

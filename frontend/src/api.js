@@ -6,6 +6,17 @@ async function request(path) {
   return response.json();
 }
 
+async function authRequest(path, body) {
+  const response = await fetch(`${API_BASE}${path}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  const payload = await response.json();
+  if (!response.ok) throw new Error(payload.detail || "The account service is unavailable.");
+  return payload;
+}
+
 export async function fetchMovies() {
   return request("/movies");
 }
@@ -20,4 +31,12 @@ export async function fetchMovie(movieId) {
 
 export async function fetchRecommendations(movieId) {
   return request(`/movies/${movieId}/recommendations?top_n=8`);
+}
+
+export function signUp(name, email, password) {
+  return authRequest("/auth/signup", { name, email, password });
+}
+
+export function signIn(email, password) {
+  return authRequest("/auth/signin", { email, password });
 }

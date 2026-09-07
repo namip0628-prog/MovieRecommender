@@ -1,4 +1,7 @@
-"""Smoke tests for search, details, and recommendation endpoints."""
+"""Smoke tests for search, details, recommendation, and auth endpoints."""
+
+import tempfile
+from pathlib import Path
 
 from fastapi.testclient import TestClient
 
@@ -11,6 +14,25 @@ def test_health():
     response = client.get("/health")
     assert response.status_code == 200
     assert response.json()["status"] == "ok"
+
+
+def test_auth_signup_and_signin():
+    import main
+
+    original_db = main.AUTH_DB
+    with tempfile.TemporaryDirectory() as directory:
+        main.AUTH_DB = Path(directory) / "accounts.db"
+        signup = client.post("/auth/signup", json={"name": "Alex", "email": "Alex@example.com", "password": "secret123"})
+        assert signup.status_code == 201
+        assert signup.json()["user"] == {"name": "Alex", "email": "alex@example.com"}
+
+        signin = client.post("/auth/signin", json={"email": "alex@example.com", "password": "secret123"})
+        assert signin.status_code == 200
+        assert signin.json()["user"]["email"] == "alex@example.com"
+
+        wrong_password = client.post("/auth/signin", json={"email": "alex@example.com", "password": "wrong123"})
+        assert wrong_password.status_code == 401
+    main.AUTH_DB = original_db
 
 
 def test_list_movies():
@@ -96,6 +118,7 @@ def test_recommendations_unknown_movie():
 if __name__ == "__main__":
     tests = [
         test_health,
+        test_auth_signup_and_signin,
         test_list_movies,
         test_search_by_title,
         test_search_by_director,

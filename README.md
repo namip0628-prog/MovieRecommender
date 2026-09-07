@@ -7,6 +7,8 @@ A beginner-friendly full-stack starter:
 
 Recommendations are **content-based**: each movie is turned into one text blob (overview, genres, keywords, cast, director), then TF-IDF + cosine similarity ranks the 10 closest titles.
 
+Accounts are stored by the FastAPI service in `backend/accounts.db`, so the same email and password can be used on multiple devices. For a production deployment, attach persistent storage to the backend (or set `AUTH_DB` to a persistent database path), otherwise a redeploy can remove local SQLite data.
+
 ## Project layout
 
 ```
@@ -34,7 +36,7 @@ movie-recommender/
 
 | File | Role |
 | --- | --- |
-| `backend/main.py` | FastAPI routes: list, search, details, and recommendations. |
+| `backend/main.py` | FastAPI routes: account auth, list, search, details, and recommendations. |
 | `backend/recommender.py` | Builds a “soup” string per movie, vectorizes with TF-IDF, ranks by cosine similarity. |
 | `backend/movies.json` | Sample catalog with overview, genres, keywords, cast, and director. |
 | `backend/requirements.txt` | FastAPI, Uvicorn, pandas, and scikit-learn. |
