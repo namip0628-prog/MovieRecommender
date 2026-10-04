@@ -1,5 +1,7 @@
 # Movie Recommendation Engine
 
+LIVE DEMO: https://movie-recommender-frontend-og9a.onrender.com/
+
 A beginner-friendly full-stack starter:
 
 - **Frontend:** React (Vite) — the pages you see in the browser
